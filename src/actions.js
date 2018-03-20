@@ -3,33 +3,33 @@ import {
   REMOVE_EVENT_LISTENER,
   REMOVE_ALL_LISTENERS,
   DISPATCH_EVENT,
-  SET_LOGLEVEL
+  SET_LOGLEVEL,
 } from './constants';
 
 export const dispatchEvent = (event) => ({
   type: DISPATCH_EVENT,
-  event
+  event,
 });
 
 export const addEventListener = (name, handler, priority = 0) => ({
   type: ADD_EVENT_LISTENER,
   name,
   handler,
-  priority
-})
+  priority,
+});
 
 export const removeEventListener = (name, handler) => ({
   type: REMOVE_EVENT_LISTENER,
   name,
-  handler
-})
+  handler,
+});
 
 export const removeAllListenersForEvent = (name) => ({
   type: REMOVE_ALL_LISTENERS,
-  name
-})
+  name,
+});
 
 export const setLogLevel = (level) => ({
   type: SET_LOGLEVEL,
-  level
-})
+  level,
+});

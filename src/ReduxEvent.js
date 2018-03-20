@@ -1,4 +1,4 @@
-import { REDUX_EVENT } from "./constants";
+import { REDUX_EVENT } from './constants';
 
 export default class ReduxEvent {
   constructor(name, payload = {}, priority = 0) {

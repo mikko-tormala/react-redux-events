@@ -1,19 +1,19 @@
-import { 
+import {
   dispatchEvent,
   addEventListener,
   removeEventListener,
   removeAllListenersForEvent,
-  setLogLevel
-} from './actions'
-import reduxEventReducer from './reducer'
-import ReduxEvent from './ReduxEvent'
+  setLogLevel,
+} from './actions';
+import reduxEventReducer from './reducer';
+import ReduxEvent from './ReduxEvent';
 
-export { 
-  ReduxEvent, 
+export {
+  ReduxEvent,
   reduxEventReducer,
-  dispatchEvent, 
-  addEventListener, 
-  removeEventListener, 
+  dispatchEvent,
+  addEventListener,
+  removeEventListener,
   removeAllListenersForEvent,
-  setLogLevel
-}
+  setLogLevel,
+};
