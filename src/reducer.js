@@ -126,11 +126,11 @@ function removeAllListenersForContext(state, action) {
   events.forEach((eventKey, event) => {
     event.forEach( (listenerKey, listener, listenerMap) => {
       if (listener.context === listenerContext) {
-        console.log(listenerKey, listener.context)
-        listenerMap.delete(listenerKey)
+        console.log(listenerKey, listener.context);
+        listenerMap.delete(listenerKey);
         found = true;
       }
-    })
+    });
   });
   if (!found) {
     log(state.logLevel, 1, `Warning: Tried to remove a listeners for context [${listenerContext}], but didn't find listeners.`);

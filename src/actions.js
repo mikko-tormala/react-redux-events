@@ -22,7 +22,7 @@ export const addEventListener = (name, context, handler, priority = 0) => ({
 
 export const removeEventListener = (name, context, handler) => ({
   type: REMOVE_EVENT_LISTENER,
-  context, 
+  context,
   name,
   handler,
 });
