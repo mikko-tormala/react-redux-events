@@ -1,8 +1,8 @@
-// EventViewer.js
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
-import { addEventListener } from '../react-redux-events';
-import { TRACKING_EVENT } from './Analytics';
+import { addEventListener } from 'react-redux-events';
+import { TRACKING_EVENT, VIEWER_EVENT } from './Events';
+
 
 const mapProps =  state => ({});
 const mapDispatch = dispatch => ({
@@ -13,19 +13,19 @@ class EventViewer extends Component {
   constructor(props) {
     super(props)
     this.props.addEventListener(TRACKING_EVENT, this.onEvent.bind(this));
-    this.state = {
-      events: []
-    }
+    this.props.addEventListener(VIEWER_EVENT, this.onEvent.bind(this));
+    this.eventList = []
   }
 
   onEvent(event) {
-    this.state.events.push(event);
+    this.eventList.push(event);
+    this.forceUpdate();
   }
 
   render() {
     return (
       <ul>
-        {this.state.events.map((event,i) => <li>{event.payload.time}: {event.payload.action}</li>)}
+        {this.eventList.map((event,i) => <li key={i}>{event.payload.date}: {event.type}</li>)}
       </ul>
     );
   }

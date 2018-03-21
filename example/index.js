@@ -1,7 +1,8 @@
-// Index.js
+import React from 'react';
+import ReactDOM from 'react-dom';
 import { createStore, combineReducers } from 'redux';
 import { Provider } from 'react-redux';
-import { reactReduxEventReducer } from '../src';
+import { reduxEventReducer } from 'react-redux-events';
 
 // Example: The Button Component dispatches events
 import Button from './Button';
@@ -12,14 +13,16 @@ import Analytics from './Analytics';
 
 // Add the reactReduxEventReducer reducer
 const store = createStore(
-  combineReducers({ ...reducers, reactReduxEvents: reactReduxEventReducer })
+  combineReducers({ reactReduxEvents: reduxEventReducer })
 );
 
 new Analytics(store);
 
 ReactDOM.render(
   <Provider store={store}>
-    <Button />
-    <EventViewer />
+    <div>
+      <Button />
+      <EventViewer />
+    </div>
   </Provider>,
   document.getElementById('root'));

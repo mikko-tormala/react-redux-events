@@ -1,0 +1,2 @@
+export const VIEWER_EVENT = 'VIEWER_EVENT';
+export const TRACKING_EVENT = 'TRACKING_EVENT';

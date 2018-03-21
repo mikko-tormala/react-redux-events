@@ -46,10 +46,18 @@ npm install --save react-redux-events
 Then to enable React-Redux Events, register the RRE reducer along with your other reducers, and make sure you have the react-redux Provide wrapping your app:
 
 ```js
+// Events.js
+export const VIEWER_EVENT = 'VIEWER_EVENT';
+export const TRACKING_EVENT = 'TRACKING_EVENT';
+```
+
+```js
 // Index.js
+import React from 'react';
+import ReactDOM from 'react-dom';
 import { createStore, combineReducers } from 'redux';
 import { Provider } from 'react-redux';
-import { reactReduxEventReducer } from 'react-redux-events';
+import { reduxEventReducer } from 'react-redux-events';
 
 // Example: The Button Component dispatches events
 import Button from './Button';
@@ -60,15 +68,17 @@ import Analytics from './Analytics';
 
 // Add the reactReduxEventReducer reducer
 const store = createStore(
-  combineReducers({ ...reducers, reactReduxEvents: reactReduxEventReducer })
+  combineReducers({ reactReduxEvents: reduxEventReducer })
 );
 
 new Analytics(store);
 
 ReactDOM.render(
   <Provider store={store}>
-    <Button />
-    <EventViewer />
+    <div>
+      <Button />
+      <EventViewer />
+    </div>
   </Provider>,
   document.getElementById('root'));
 ```
@@ -80,7 +90,8 @@ That's it. Now you can use the react-redux `connect` method to tie add/remove li
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import { addEventListener } from 'react-redux-events';
-import { TRACKING_EVENT } from './Analytics';
+import { TRACKING_EVENT, VIEWER_EVENT } from './Events';
+
 
 const mapProps =  state => ({});
 const mapDispatch = dispatch => ({
@@ -91,19 +102,19 @@ class EventViewer extends Component {
   constructor(props) {
     super(props)
     this.props.addEventListener(TRACKING_EVENT, this.onEvent.bind(this));
-    this.state = {
-      events: []
-    }
+    this.props.addEventListener(VIEWER_EVENT, this.onEvent.bind(this));
+    this.eventList = []
   }
 
   onEvent(event) {
-    this.state.events.push(event);
+    this.eventList.push(event);
+    this.forceUpdate();
   }
 
   render() {
     return (
       <ul>
-        {this.state.events.map((event,i) => <li>{event.payload.time}: {event.payload.action}</li>)}
+        {this.eventList.map((event,i) => <li key={i}>{event.payload.date}: {event.type}</li>)}
       </ul>
     );
   }
@@ -120,7 +131,7 @@ Likewise, you use the react-redux `connect` method to enable dispatching events:
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import { ReduxEvent, dispatchEvent } from 'react-redux-events';
-import { TRACKING_EVENT } from './Analytics';
+import { TRACKING_EVENT, VIEWER_EVENT } from './Events';
 
 const mapProps =  state => ({});
 const mapDispatch = dispatch => ({
@@ -128,16 +139,24 @@ const mapDispatch = dispatch => ({
 });
 
 class Button extends Component {
-  dispatchEvent() {
+  dispatchEvent1() {
     // Create a new ReduxEvent and set the optional payload object
-    let event = new ReduxEvent(TRACKING_EVENT, { action: 'click' });
+    let event = new ReduxEvent(TRACKING_EVENT, { date: Date.now() });
     // Dispatch the event to listeners around the app
+    this.props.dispatchEvent(event);
+  }
+  
+  dispatchEvent2() {
+    let event = new ReduxEvent(VIEWER_EVENT, { date: Date.now() });
     this.props.dispatchEvent(event);
   }
 
   render() {
     return (
-      <button onClick={this.dispatchEvent.bind(this)}>Dispatch Event!</button>
+      <div>
+        <button onClick={this.dispatchEvent1.bind(this)}>Dispatch Tracking Event!</button>
+        <button onClick={this.dispatchEvent2.bind(this)}>Dispatch Viewer Event!</button>
+      </div>
     );
   }
 }
@@ -152,9 +171,7 @@ You can also add listeners / dispatchers to a non-react class:
 ```js
 // Analytics.js
 import { addEventListener } from 'react-redux-events';
-import { TRACKING_EVENT } from './Analytics';
-
-export const TRACKING_EVENT = 'TRACKING_EVENT';
+import { TRACKING_EVENT } from './Events';
 
 export default class Analytics {
   constructor(store) {
@@ -164,12 +181,12 @@ export default class Analytics {
   }
 
   registerListeners() {
-    this.store.dispatch(addEventListener(TRACKING_EVENT, onEvent.bind(this)));
+    // Register the listener in the store
+    this.store.dispatch(addEventListener(TRACKING_EVENT, this.onEvent.bind(this)));
   }
 
   onEvent(event) {
-    console.log('Received event:');
-    console.log(event);
+    console.log('Received event:', event.type, event.payload);
   }
 }
 ```

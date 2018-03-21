@@ -1,7 +1,5 @@
-import { addEventListener } from '../src';
-import { TRACKING_EVENT } from './Analytics';
-
-export const TRACKING_EVENT = 'TRACKING_EVENT';
+import { addEventListener } from 'react-redux-events';
+import { TRACKING_EVENT } from './Events';
 
 export default class Analytics {
   constructor(store) {
@@ -11,11 +9,11 @@ export default class Analytics {
   }
 
   registerListeners() {
-    this.store.dispatch(addEventListener(TRACKING_EVENT, onEvent.bind(this)));
+    // Register the listener in the store
+    this.store.dispatch(addEventListener(TRACKING_EVENT, this.onEvent.bind(this)));
   }
 
   onEvent(event) {
-    console.log('Received event:');
-    console.log(event);
+    console.log('Received event:', event.type, event.payload);
   }
 }
