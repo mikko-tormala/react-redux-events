@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import { ReduxEvent, dispatchEvent } from 'react-redux-events';
-import { TRACKING_EVENT, VIEWER_EVENT } from './Events';
+import { TRACKING_EVENT, CLICK_EVENT } from './Events';
 
 const mapProps =  state => ({});
 const mapDispatch = dispatch => ({
@@ -17,7 +17,7 @@ class Button extends Component {
   }
   
   dispatchEvent2() {
-    let event = new ReduxEvent(VIEWER_EVENT, { date: Date.now() });
+    let event = new ReduxEvent(CLICK_EVENT, { date: Date.now() });
     this.props.dispatchEvent(event);
   }
 
@@ -25,7 +25,7 @@ class Button extends Component {
     return (
       <div>
         <button onClick={this.dispatchEvent1.bind(this)}>Dispatch Tracking Event!</button>
-        <button onClick={this.dispatchEvent2.bind(this)}>Dispatch Viewer Event!</button>
+        <button onClick={this.dispatchEvent2.bind(this)}>Dispatch Click Event!</button>
       </div>
     );
   }

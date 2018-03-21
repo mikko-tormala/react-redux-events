@@ -3,6 +3,7 @@ import {
   addEventListener,
   removeEventListener,
   removeAllListenersForEvent,
+  removeAllListenersForContext,
   setLogLevel,
 } from './actions';
 import reduxEventReducer from './reducer';
@@ -15,5 +16,6 @@ export {
   addEventListener,
   removeEventListener,
   removeAllListenersForEvent,
+  removeAllListenersForContext,
   setLogLevel,
 };
