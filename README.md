@@ -182,7 +182,7 @@ export default class Analytics {
 
   registerListeners() {
     // Register the listener in the store
-    this.store.dispatch(addEventListener(TRACKING_EVENT, this.onEvent.bind(this)));
+    this.props.dispatch(addEventListener(TRACKING_EVENT, this.onEvent.bind(this)));
   }
 
   onEvent(event) {
@@ -216,13 +216,23 @@ The optional `priority` value sets the priority level. Event listeners with high
 registerListeners() {
   // Register the listener in the store
   this.store.dispatch(addEventListener('EVENT_TYPE', this.onEvent.bind(this)));
+  this.store.dispatch(addEventListener('EVENT_TYPE', this.onPriorityEvent.bind(this), 2));
 }
 
+// Both of these listeners will be called when an event with the type 'EVENT_TYPE' is dispatched
 onEvent(event) {
   console.log('Received event:');
   console.log('Event type:', event.type);
   console.log('Event payload:', event.payload);
   console.log('Event priority:', event.priority);
+}
+
+// Will be called first
+onPriorityEvent(event) {
+  console.log('Received priority event:');
+  console.log('Priority Event type:', event.type);
+  console.log('Priority Event payload:', event.payload);
+  console.log('EPriority vent priority:', event.priority);
 }
 ```
 
