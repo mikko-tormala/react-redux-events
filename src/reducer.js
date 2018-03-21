@@ -1,4 +1,4 @@
-import { ADD_EVENT_LISTENER, REMOVE_ALL_LISTENERS, REMOVE_EVENT_LISTENER, DISPATCH_EVENT, SET_LOGLEVEL } from './constants';
+import { ADD_EVENT_LISTENER, REMOVE_ALL_LISTENERS_FOR_EVENT, REMOVE_EVENT_LISTENER, DISPATCH_EVENT, SET_LOGLEVEL, REMOVE_ALL_LISTENERS_FOR_CONTEXT } from './constants';
 
 const initialState = {
   eventListeners: new Map(),
@@ -10,7 +10,8 @@ const reactReduxEventReducer = (state = initialState, action) => {
   case ADD_EVENT_LISTENER: return addEventListener(state, action);
   case DISPATCH_EVENT: return dispatchEvent(state, action);
   case REMOVE_EVENT_LISTENER: return removeEventListener(state, action);
-  case REMOVE_ALL_LISTENERS: return removeAllListenersForEvent(state, action);
+  case REMOVE_ALL_LISTENERS_FOR_EVENT: return removeAllListenersForEvent(state, action);
+  case REMOVE_ALL_LISTENERS_FOR_CONTEXT: return removeAllListenersForContext(state, action);
   case SET_LOGLEVEL: return setLogLevel(state, action);
   default: return state;
   }
@@ -47,6 +48,7 @@ function dispatchEvent(state, action) {
     listenersToHandle.forEach((listener) => {
       listener.handler({
         type: eventName,
+        context: listener.context,
         priority: priority,
         payload: payload,
       });
@@ -55,17 +57,17 @@ function dispatchEvent(state, action) {
     log(state.logLevel, 1, `Warning: No handlers for [${eventName}] at or higher than priority level [${priority}]!`);
   }
 
-
   return state;
 }
 
 function addEventListener(state, action) {
   log(state.logLevel, 2, 'Add Event Listener:', action);
   const eventName = action.name;
-  const eventHandler = action.handler;
-  const priority = action.priority;
+  const listenerContext = action.context;
+  const listenerHandler = action.handler;
+  const listenerPriority = action.priority;
 
-  if (typeof eventHandler !== 'function') {
+  if (typeof listenerContext[listenerHandler] !== 'function') {
     log(state.logLevel, 0, `Error: Tried to add a listener for event [${eventName}] but the provided handler is not a function!`);
     return state;
   }
@@ -76,15 +78,16 @@ function addEventListener(state, action) {
   const eventListeners = state.eventListeners.get(eventName);
 
   eventListeners.forEach( (key, event) => {
-    if (event.handler === eventHandler) {
+    if (event.handler === listenerHandler) {
       log(state.logLevel, 1, `Warning: Duplicate. Handler for event [${eventName}] already exists. Existing priority level: [${event.priority}]! Not adding a duplicate.`);
       return state;
     }
   });
 
   eventListeners.set({
-    priority: priority,
-    handler: eventHandler,
+    priority: listenerPriority,
+    context: listenerContext,
+    handler: listenerHandler.bind(listenerContext),
   });
   return state;
 }
@@ -92,7 +95,8 @@ function addEventListener(state, action) {
 function removeEventListener(state, action) {
   log(state.logLevel, 2, 'Remove Event Listener', action);
   const eventName = action.name;
-  const eventHandler = action.handler;
+  const listenerContext = action.context;
+  const listenerHandler = action.handler;
   if (!state.eventListeners.has(eventName)) {
     log(state.logLevel, 1, `Warning: Tried to remove a listener for event [${eventName}], but none exist.`);
     return state;
@@ -100,8 +104,8 @@ function removeEventListener(state, action) {
   const eventListeners = state.eventListeners.get(eventName);
 
   let found = false;
-  eventListeners.forEach( (key, event, map) => {
-    if (event.handler === eventHandler) {
+  eventListeners.forEach( (key, listener, map) => {
+    if (listener.context === listenerContext && listener.handler === listenerHandler) {
       map.delete(key);
       found = true;
     }
@@ -114,8 +118,29 @@ function removeEventListener(state, action) {
   return state;
 }
 
+function removeAllListenersForContext(state, action) {
+  log(state.logLevel, 2, 'Remove Event Listeners For Context', action);
+  const listenerContext = action.context;
+  const events = state.eventListeners;
+  let found = false;
+  events.forEach((eventKey, event) => {
+    event.forEach( (listenerKey, listener, listenerMap) => {
+      if (listener.context === listenerContext) {
+        console.log(listenerKey, listener.context)
+        listenerMap.delete(listenerKey)
+        found = true;
+      }
+    })
+  });
+  if (!found) {
+    log(state.logLevel, 1, `Warning: Tried to remove a listeners for context [${listenerContext}], but didn't find listeners.`);
+  }
+
+  return state;
+}
+
 function removeAllListenersForEvent(state, action) {
-  log(state.logLevel, 2, 'Remove Event Listener', action);
+  log(state.logLevel, 2, 'Remove Event Listeners For Event', action);
   const eventName = action.name;
   if (!state.eventListeners.has(eventName)) {
     log(state.logLevel, 1, `Warning: Tried to remove listeners for event [${eventName}], but none exist.`);

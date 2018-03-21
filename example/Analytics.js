@@ -10,7 +10,7 @@ export default class Analytics {
 
   registerListeners() {
     // Register the listener in the store
-    this.store.dispatch(addEventListener(TRACKING_EVENT, this.onEvent.bind(this)));
+    this.store.dispatch(addEventListener(TRACKING_EVENT, this, this.onEvent));
   }
 
   onEvent(event) {

@@ -1,23 +1,21 @@
 React-Redux Events
 ==================
 
-React-Redux Events implements the [Observer Pattern](https://en.wikipedia.org/wiki/Observer_pattern) for use in React-Redux applications, enabling Event Dispatchers/Listeners between components.
+Implements the [Observer Pattern](https://en.wikipedia.org/wiki/Observer_pattern) for use in Redux applications, enabling Event Dispatchers/Listeners between any classes connected to the store. 
+
+**Note: While the name "React" is part of the name, React is not required to use this package.**
 
 ```js
 npm install --save react-redux-events
 ```
 
-## Why Do I Need This?
-
-If you’re not sure whether you need it, you probably don’t.
-
 ## Motivation
 
-React-Redux Events (RRE) allows React-Redux application components to subscribe/dispatch to events. This is useful when you want to pass messages between components, but don't need to store the change in the state of the application.
+React-Redux Events (RRE) allows parts of an application using Redux to subscribe/dispatch to events. This is useful when you want to pass messages between parts of the application in a decoupled one-to-many manner, but don't need to store the change in the state of the application.
 
 ### Use Cases
 
-Any situation where one-to-many event dispatching without storing it in state is useful. For example:
+Any situation where decoupled one-to-many event dispatching without storing it in state is useful. For example:
 - Using a centralized tracking module, and dispatching tracking events from components.
 - Using a centralized data fetching/sending module.
 
@@ -27,29 +25,32 @@ React-Redux Events (RRE) implements the [Observer Pattern](https://en.wikipedia.
 
 In this implementation, `Listeners` subscribe to `Events`, which can be `Dispatched` from anywhere in the application.
 
-Flow:
-- Component signals interest in a specific `Event Type`, by registering a `Listener` method for that event.
+Base Flow:
+- A component signals interest in a specific `Event Type`, by registering a `Listener` method for that event.
 - React-Redux Events stores the interest for that Event type.
 - Sometime later, somewhere else in the application, an Event of that type is `Dispatched`.
 - RRE looks up all the stored interested listeners for that event type, and calls the listener method with the event data.
+- When the component unmounts or is no longer interested in the event type, it signals RRE to remove the listener.
 
 ## Requirements
 - redux@>=3.1.0
-- react@>16.0.0
+- react@>=16.0.0 (if you want to use with React)
 
-## Installation
+## Usage with React
 
 ```
 npm install --save react-redux-events
 ```
 
-Then to enable React-Redux Events, register the RRE reducer along with your other reducers, and make sure you have the react-redux Provide wrapping your app:
+First, let's define some Event Types:
 
 ```js
 // Events.js
 export const VIEWER_EVENT = 'VIEWER_EVENT';
 export const TRACKING_EVENT = 'TRACKING_EVENT';
 ```
+
+Then to enable React-Redux Events, register the RRE reducer along with your other reducers, and make sure the react-redux Provider wraps your app:
 
 ```js
 // Index.js
@@ -92,17 +93,16 @@ import { connect } from 'react-redux'
 import { addEventListener } from 'react-redux-events';
 import { TRACKING_EVENT, VIEWER_EVENT } from './Events';
 
-
 const mapProps =  state => ({});
 const mapDispatch = dispatch => ({
-  addEventListener: (event, handler, priority) => dispatch(addEventListener(event, handler, priority))
+  addEventListener: (event, context, handler, priority) => dispatch(addEventListener(event, context, handler, priority))
 });
 
 class EventViewer extends Component {
   constructor(props) {
     super(props)
-    this.props.addEventListener(TRACKING_EVENT, this.onEvent.bind(this));
-    this.props.addEventListener(VIEWER_EVENT, this.onEvent.bind(this));
+    this.props.addEventListener(TRACKING_EVENT, this, this.onEvent);
+    this.props.addEventListener(VIEWER_EVENT, this, this.onEvent);
     this.eventList = []
   }
 
@@ -182,7 +182,7 @@ export default class Analytics {
 
   registerListeners() {
     // Register the listener in the store
-    this.props.dispatch(addEventListener(TRACKING_EVENT, this.onEvent.bind(this)));
+    this.store.dispatch(addEventListener(TRACKING_EVENT, this, this.onEvent));
   }
 
   onEvent(event) {
@@ -191,16 +191,21 @@ export default class Analytics {
 }
 ```
 
+## Removing listeners
+
+When a component is unmounted or in general no longer wishes to receive events it has added listeners to, remember to `removeEventListener` each of those events. Otherwise you will have listeners firing on components that have already been removed from the app.
+
 ## API
 
 These are the dispatchable methods available:
 
-### `addEventListener(type, handler, [priority = 0])`
+### `addEventListener(type, context, handler, [priority = 0])`
 This method registers an event listener for the specific event `type` with the event `handler` method. 
 The optional `priority` value sets the priority level. Event listeners with higher priority levels get handled before listeners with lower levels.
 
 #### Arguments
 - `type` (String) This is the type of the Event
+- `context` (Object) This is the context where the handler will be called.
 - `handler` (Method) This is the handler that is called when the event is triggered. The handler is passed an object with the following structure:
 ```js
 {
@@ -236,11 +241,12 @@ onPriorityEvent(event) {
 }
 ```
 
-### `removeEventListener(type, handler)`
+### `removeEventListener(type, context, handler)`
 This method removes a event listener for the specific event `type` and the specified `handler` method.
 
 #### Arguments
 - `type` (String) This is the type of the Event that was registered
+- `context` (Object) This is the context where the handler was registered.
 - `handler` (Method) This is the handler that was registered
 
 #### Example
@@ -272,8 +278,22 @@ onClick() {
 }
 ```
 
+### `removeAllListenersForContext(context)`
+This method removes all event listeners for the specified `context`.
+
+#### Arguments
+- `context` (object) This is the context you want to remove listeners from
+
+#### Example
+```js
+componentWillUnmount() {
+  // Unregister the listener from the store
+  this.store.dispatch(removeAllListenersForContext(this));
+}
+```
+
 ### `removeAllListenersForEvent(type)`
-This method removes all event listener for the specific event `type`.
+This method removes all event listener for the specified event `type`.
 
 #### Arguments
 - `type` (String) This is the type of the Event that was registered

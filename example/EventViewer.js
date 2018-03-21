@@ -6,14 +6,14 @@ import { TRACKING_EVENT, VIEWER_EVENT } from './Events';
 
 const mapProps =  state => ({});
 const mapDispatch = dispatch => ({
-  addEventListener: (event, handler, priority) => dispatch(addEventListener(event, handler, priority))
+  addEventListener: (event, context, handler, priority) => dispatch(addEventListener(event, context, handler, priority))
 });
 
 class EventViewer extends Component {
   constructor(props) {
     super(props)
-    this.props.addEventListener(TRACKING_EVENT, this.onEvent.bind(this));
-    this.props.addEventListener(VIEWER_EVENT, this.onEvent.bind(this));
+    this.props.addEventListener(TRACKING_EVENT, this, this.onEvent);
+    this.props.addEventListener(VIEWER_EVENT, this, this.onEvent);
     this.eventList = []
   }
 
