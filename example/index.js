@@ -25,4 +25,4 @@ ReactDOM.render(
       <EventViewer />
     </div>
   </Provider>,
-  document.getElementById('root'));
+  document.body);
