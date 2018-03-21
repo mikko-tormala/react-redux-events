@@ -60,7 +60,7 @@ import Analytics from './Analytics';
 
 // Add the reactReduxEventReducer reducer
 const store = createStore(
-  combineReducers({ ...reducers, reactReduxEvents: reactReduxEventReducer });
+  combineReducers({ ...reducers, reactReduxEvents: reactReduxEventReducer })
 );
 
 new Analytics(store);
@@ -79,7 +79,7 @@ That's it. Now you can use the react-redux `connect` method to tie add/remove li
 // EventViewer.js
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
-import { addEventListener } from '../react-redux-events';
+import { addEventListener } from 'react-redux-events';
 import { TRACKING_EVENT } from './Analytics';
 
 const mapProps =  state => ({});
@@ -119,7 +119,7 @@ Likewise, you use the react-redux `connect` method to enable dispatching events:
 // Button.js
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
-import { ReduxEvent, dispatchEvent } from '../react-redux-events';
+import { ReduxEvent, dispatchEvent } from 'react-redux-events';
 import { TRACKING_EVENT } from './Analytics';
 
 const mapProps =  state => ({});
@@ -151,7 +151,7 @@ You can also add listeners / dispatchers to a non-react class:
 
 ```js
 // Analytics.js
-import { addEventListener } from '../react-redux-events';
+import { addEventListener } from 'react-redux-events';
 import { TRACKING_EVENT } from './Analytics';
 
 export const TRACKING_EVENT = 'TRACKING_EVENT';
