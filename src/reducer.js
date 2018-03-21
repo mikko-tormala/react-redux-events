@@ -67,7 +67,7 @@ function addEventListener(state, action) {
   const listenerHandler = action.handler;
   const listenerPriority = action.priority;
 
-  if (typeof listenerContext[listenerHandler] !== 'function') {
+  if (typeof listenerHandler !== 'function') {
     log(state.logLevel, 0, `Error: Tried to add a listener for event [${eventName}] but the provided handler is not a function!`);
     return state;
   }
@@ -126,7 +126,6 @@ function removeAllListenersForContext(state, action) {
   events.forEach((eventKey, event) => {
     event.forEach( (listenerKey, listener, listenerMap) => {
       if (listener.context === listenerContext) {
-        console.log(listenerKey, listener.context);
         listenerMap.delete(listenerKey);
         found = true;
       }
