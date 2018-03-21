@@ -220,8 +220,8 @@ The optional `priority` value sets the priority level. Event listeners with high
 ```js
 registerListeners() {
   // Register the listener in the store
-  this.store.dispatch(addEventListener('EVENT_TYPE', this.onEvent.bind(this)));
-  this.store.dispatch(addEventListener('EVENT_TYPE', this.onPriorityEvent.bind(this), 2));
+  this.store.dispatch(addEventListener('EVENT_TYPE', this, this.onEvent.bind(this)));
+  this.store.dispatch(addEventListener('EVENT_TYPE', this, this.onPriorityEvent.bind(this), 2));
 }
 
 // Both of these listeners will be called when an event with the type 'EVENT_TYPE' is dispatched
