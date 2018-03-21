@@ -3,7 +3,7 @@ React-Redux Events
 
 Implements the [Observer Pattern](https://en.wikipedia.org/wiki/Observer_pattern) for use in Redux applications, enabling Event Dispatchers/Listeners between any classes connected to the store. 
 
-**Note: While the name "React" is part of the name, React is not required to use this package.**
+**Note: While the name "React" is part of the name, React is not required to use this package and it will work with any Redux application.**
 
 ```js
 npm install --save react-redux-events
